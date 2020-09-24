@@ -80,14 +80,14 @@ micropython.alloc_emergency_exception_buf(100)
 class KeyBoard:
     def __init__(self):
         self.hid = pyb.USB_HID()
-        self.buf = bytearray(8)  # report is 8 bytes long
+        self.buf = bytearray(17)  # report is 8 bytes long
 
     def _scan(self):
         if pyb.Pin('A0').value():
-            self.buf[2] = 0
+            self.buf[7] = 0
             pyb.LED(1).off()
         else:
-            self.buf[2] = 0x29
+            self.buf[7] = 0x02
             pyb.LED(1).on()
 
     def run(self):
