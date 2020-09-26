@@ -4,8 +4,6 @@ import pyb
 
 micropython.alloc_emergency_exception_buf(100)
 
-ENABLE_USB = True
-
 ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'A1']
 COL = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'A7', 'A6', 'B0', 'A5', 'A2', 'A3', 'A4']
 
@@ -39,7 +37,7 @@ class KeyBoard:
     HEAD = 2
 
     def __init__(self):
-        self.hid = pyb.USB_HID()
+        self.hid = pyb.USB_HID() if 'HID' in pyb.usb_mode() else None
         self.buf = bytearray(17)  # report is 8 bytes long
 
         self.fn = False
@@ -92,8 +90,11 @@ class KeyBoard:
         pyb.LED(1).toggle()
         while True:
             self._scan()
-            if ENABLE_USB:
+            if self.hid is not None:
                 self.hid.send(self.buf)
+            else:
+                if 'HID' in pyb.usb_mode():
+                    self.hid = pyb.USB_HID()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,9 @@
 # noinspection PyUnresolvedReferences
 import pyb
 
+pyb.LED(1).off()
+pyb.delay(500)  # Necessary delay, prevent failed initialization of USB_HID
+
 hid_keyboard = (1, 1, 8, 8, bytes([
     0x05, 0x01,  # USAGE_PAGE(Generic Desktop)
     0x09, 0x06,  # USAGE(Keyboard)
@@ -43,3 +46,15 @@ hid_keyboard = (1, 1, 8, 8, bytes([
 ]))
 
 pyb.usb_mode('VCP+HID', hid=hid_keyboard)
+
+if 'HID' not in pyb.usb_mode():
+    pyb.hard_reset()
+
+pyb.LED(1).on()
+pyb.delay(100)
+pyb.LED(1).off()
+pyb.delay(100)
+pyb.LED(1).on()
+pyb.delay(100)
+pyb.LED(1).off()
+pyb.delay(500)
