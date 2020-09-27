@@ -3,8 +3,15 @@ import pyb
 
 pyb.LED(1).off()
 pyb.delay(500)  # Necessary delay, prevent failed initialization of USB_HID
-
-hid_keyboard = (1, 1, 8, 8, bytes([
+"""
+https://github.com/micropython/micropython/blob/cb84e22ac6b1356986f63f5b6db95493da81fa5f/ports/stm32/usbdev/class/inc/usbd_cdc_msc_hid0.h#L54
+subclass; // 0=no sub class, 1=boot
+protocol; // 0=none, 1=keyboard, 2=mouse
+max_packet_len; // only support up to 255
+polling_interval; // in units of 1ms
+report_desc; //
+"""
+hid_keyboard = (1, 1, 17, 1, bytes([
     0x05, 0x01,  # USAGE_PAGE(Generic Desktop)
     0x09, 0x06,  # USAGE(Keyboard)
     0xa1, 0x01,  # COLLECTION(Application)
