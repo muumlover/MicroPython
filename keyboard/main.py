@@ -4,11 +4,14 @@ import pyb
 
 micropython.alloc_emergency_exception_buf(100)
 
+SEND_SIZE = 17  # report is 17 bytes long
+RECV_SIZE = 64
+
 # ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'C14']
 # COL = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'B1', 'B0', 'B2', 'A7', 'C15', 'A1', 'A2']
 # C14->B3 A7->B10 C15->A3 B2 A0
-ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'B3']
-COL = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'B1', 'B0', 'A0', 'B10', 'A3', 'A1', 'A2']
+ROW_PINS = ['B4', 'B5', 'B6', 'B7', 'B8', 'B3']
+COL_PINS = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'B1', 'B0', 'A0', 'B10', 'A3', 'A1', 'A2']
 
 START, COUNT = 0x04, 26 + 10
 (K_A, K_B, K_C, K_D, K_E, K_F, K_G, K_H, K_I, K_J, K_K, K_L, K_M, K_N, K_O, K_P, K_Q, K_R, K_S, K_T, K_U, K_V, K_W, K_X,
@@ -50,11 +53,12 @@ class KeyBoard:
 
     def __init__(self):
         self.hid = pyb.USB_HID() if 'HID' in pyb.usb_mode() else None
-        self.buf = bytearray(17)  # report is 8 bytes long
+
+        self.send_buf = bytearray(SEND_SIZE)
 
         self.fn = False
-        self.row_pins = [pyb.Pin(x) for x in ROW]
-        self.col_pins = [pyb.Pin(x) for x in COL]
+        self.row_pins = [pyb.Pin(x) for x in ROW_PINS]
+        self.col_pins = [pyb.Pin(x) for x in COL_PINS]
 
         for row_pin in self.row_pins:
             row_pin.init(pyb.Pin.OUT_OD)
@@ -73,30 +77,30 @@ class KeyBoard:
 
     def _check(self, code):
         byte_index, bit_index = self._get_index(code)
-        return self.buf[byte_index] & bit_index
+        return self.send_buf[byte_index] & bit_index
 
-    def _set(self, code):
+    def _set_key(self, code):
         if code == 0xff:
             self.fn = True
             return
         byte_index, bit_index = self._get_index(code)
-        self.buf[byte_index] = self.buf[byte_index] | bit_index
+        self.send_buf[byte_index] = self.send_buf[byte_index] | bit_index
 
-    def _reset(self, code):
+    def _reset_key(self, code):
         if code == 0xff:
             self.fn = False
             return
         byte_index, bit_index = self._get_index(code)
-        self.buf[byte_index] = self.buf[byte_index] & ~bit_index
+        self.send_buf[byte_index] = self.send_buf[byte_index] & ~bit_index
 
-    def _scan(self):
+    def _scan_matrix(self):
         for row, row_pin in enumerate(self.row_pins):
             row_pin.low()
             for col, col_pin in enumerate(self.col_pins):
                 if col_pin.value() == 0:
-                    self._set(self.key_map[row][col])
+                    self._set_key(self.key_map[row][col])
                 else:
-                    self._reset(self.key_map[row][col])
+                    self._reset_key(self.key_map[row][col])
             row_pin.high()
 
         if self._check(self.key_map[5][5]):
@@ -107,9 +111,9 @@ class KeyBoard:
     def run(self):
         pyb.LED(1).toggle()
         while True:
-            self._scan()
+            self._scan_matrix()
             if self.hid is not None:
-                self.hid.send(self.buf)
+                self.hid.send(self.send_buf)
             else:
                 if 'HID' in pyb.usb_mode():
                     self.hid = pyb.USB_HID()
