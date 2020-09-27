@@ -1,4 +1,3 @@
-# noinspection PyUnresolvedReferences
 import pyb
 
 pyb.LED(1).off()

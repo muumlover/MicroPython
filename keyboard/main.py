@@ -1,5 +1,5 @@
 import micropython
-# noinspection PyUnresolvedReferences
+
 import pyb
 
 micropython.alloc_emergency_exception_buf(100)
