@@ -1,10 +1,12 @@
+import _thread
+
 import micropython
 
 import pyb
 
 micropython.alloc_emergency_exception_buf(100)
 
-SEND_SIZE = 17  # report is 17 bytes long
+SEND_SIZE = 33  # report is 33 bytes long
 RECV_SIZE = 64
 
 # ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'C14']
@@ -48,13 +50,28 @@ KEY_MAP_FN = [
 ]
 
 
+def thread_entry(self):
+    while True:
+        if self.hid is not None:
+            # self.hid.recv(self.recv_buf)
+            # print(self.recv_buf)
+            buf = self.hid.recv(64)
+            print(buf)
+        pass
+    pass
+
+
 class KeyBoard:
     HEAD = 2
 
     def __init__(self):
         self.hid = pyb.USB_HID() if 'HID' in pyb.usb_mode() else None
 
+        if self.hid is not None:
+            _thread.start_new_thread(thread_entry, (self,))
+
         self.send_buf = bytearray(SEND_SIZE)
+        self.recv_buf = bytearray(RECV_SIZE)
 
         self.fn = False
         self.row_pins = [pyb.Pin(x) for x in ROW_PINS]
@@ -109,11 +126,12 @@ class KeyBoard:
             pyb.LED(1).off()
 
     def run(self):
-        pyb.LED(1).toggle()
         while True:
             self._scan_matrix()
             if self.hid is not None:
+                pyb.LED(1).on()
                 self.hid.send(self.send_buf)
+                pyb.LED(1).off()
             else:
                 if 'HID' in pyb.usb_mode():
                     self.hid = pyb.USB_HID()
