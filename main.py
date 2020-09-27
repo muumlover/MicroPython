@@ -4,8 +4,11 @@ import pyb
 
 micropython.alloc_emergency_exception_buf(100)
 
-ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'A1']
-COL = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'A7', 'A6', 'B0', 'A5', 'A2', 'A3', 'A4']
+# ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'C14']
+# COL = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'B1', 'B0', 'B2', 'A7', 'C15', 'A1', 'A2']
+# C14->B3 A7->B10 C15->A3
+ROW = ['B4', 'B5', 'B6', 'B7', 'B8', 'B3']
+COL = ['B12', 'B13', 'B14', 'B15', 'A8', 'A9', 'A10', 'A15', 'B9', 'B1', 'B0', 'B2', 'B10', 'A3', 'A1', 'A2']
 
 START, COUNT = 0x04, 26 + 10
 (K_A, K_B, K_C, K_D, K_E, K_F, K_G, K_H, K_I, K_J, K_K, K_L, K_M, K_N, K_O, K_P, K_Q, K_R, K_S, K_T, K_U, K_V, K_W, K_X,
