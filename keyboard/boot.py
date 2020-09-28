@@ -13,7 +13,7 @@ max_packet_len; # only support up to 255
 polling_interval; # in units of 1ms
 report_desc; #
 """
-hid_kbd_keyboard = (1, 1, 8, 1, bytes([
+hid_kbd_keyboard = bytes([
     0x05, 0x01,  # Usage Page (Generic Desktop)
     0x09, 0x06,  # Usage (Keyboard)
     0xA1, 0x01,  # Collection (Application)
@@ -50,8 +50,8 @@ hid_kbd_keyboard = (1, 1, 8, 1, bytes([
     0x95, 0x03,  # Report Count (3)
     0x91, 0x01,  # Output (Constant)
     0xC0  # End Collection
-]))
-hid_nkro_keyboard = (1, 1, 33, 1, bytes([
+])
+hid_nkro_keyboard = bytes([
     0x05, 0x01,  # Usage Page (Generic Desktop)
     0x09, 0x06,  # Usage (Keyboard)
     0xA1, 0x01,  # Collection (Application)
@@ -89,8 +89,9 @@ hid_nkro_keyboard = (1, 1, 33, 1, bytes([
     0x95, 0x03,  # Report Count (3)
     0x91, 0x01,  # Output (Constant)
     0xC0  # End Collection
-]))
-pyb.usb_mode('VCP+HID', vid=USB_VID, pid=USB_PID, hid=hid_nkro_keyboard)
+])
+# pyb.usb_mode('VCP+HID', vid=USB_VID, pid=USB_PID, hid=(1, 1, 8, 1, hid_kbd_keyboard))
+pyb.usb_mode('VCP+HID', vid=USB_VID, pid=USB_PID, hid=(1, 1, 33, 1, hid_nkro_keyboard))
 
 if 'HID' not in pyb.usb_mode():
     pyb.hard_reset()
